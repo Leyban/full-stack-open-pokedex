@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-# try adding #skip on the commit message
+
 jobs:
   a_test_job:
     runs-on: ubuntu-20.04
