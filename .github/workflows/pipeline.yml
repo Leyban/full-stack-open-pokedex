@@ -10,7 +10,7 @@ on:
 
 jobs: 
   simple_deployment_pipeline:
-    if: ${{ github.event_name == 'push' && contains(toJson(github.event.commits.*.message), '#notest') == false}}
+    if: ${{ github.event_name == 'push'}}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -71,7 +71,7 @@ jobs:
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Merge Failed 
         uses: rjstone/discord-webhook-notify@v1
-        if: toJson(github.job) == false
+        if: success()
         with:
             severity: error
             details: Test Succeeded!
