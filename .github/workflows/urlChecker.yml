@@ -2,11 +2,9 @@ name: Check my web apps
 
 on: 
   push:
-    branches:
-      - puller
-  # schedule:
-  #   - cron: '30 16 * * 2'
-  
+  schedule:
+    - cron: '30 17 * * 2'
+
 jobs: 
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
