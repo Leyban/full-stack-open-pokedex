@@ -61,13 +61,18 @@ jobs:
           git pull
           git merge --no-ff master -m "Auto-merge master back to dev"
           git push
+  notify_discord:
+    runs-on: ubuntu-20.04
+    needs: [merge_to_prod]
+    steps:
+      - uses: actions/checkout@v3
       - name: Merge Success
         uses: rjstone/discord-webhook-notify@v1
-        if: toJson(github.job) == true
+        if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
         with:
             severity: info
             details: Merge Success!
-            description: ${{ github.event.commits.*.message }}
+            description: ${{ join(github.event.commits.*.message, '\n') }}
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Merge Failed 
         uses: rjstone/discord-webhook-notify@v1
@@ -75,5 +80,5 @@ jobs:
         with:
             severity: error
             details: Test Succeeded!
-            description: ${{ github.event.commits.*.message }}
+            description: ${{ join(github.event.commits.*.message, '\n') }}
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
