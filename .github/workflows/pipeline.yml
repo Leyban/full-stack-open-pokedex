@@ -34,6 +34,7 @@ jobs:
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-22.04
+    if: contains(toJson(github.event.commits.*.message), '#skip') == false
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,7 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
   merge_to_prod:
-    needs: [tag_release]
+    needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
