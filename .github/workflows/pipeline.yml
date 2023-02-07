@@ -45,7 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
-  merge_to_prod:
+  merge_master_to_prod:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
@@ -55,30 +55,26 @@ jobs:
           git config --local user.email "leybanlazada@gmail.com"
           git config --local user.name "Leyban"
       - name: Merge master to prod
+        id: merge_prod
         run: |
           git fetch --unshallow
           git checkout prod
           git pull
           git merge --no-ff master -m "Auto-merge master back to dev"
           git push
-  notify_discord:
-    runs-on: ubuntu-20.04
-    needs: [merge_to_prod]
-    steps:
-      - uses: actions/checkout@v3
       - name: Merge Success
         uses: rjstone/discord-webhook-notify@v1
-        if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+        if: success() && steps.merge_prod.outcome == 'success'
         with:
-            severity: info
-            details: Merge Success!
-            description: ${{ join(github.event.commits.*.message, ' || ') }}
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: info
+          details: Merge Success!
+          description: ${{ join(github.event.commits.*.message, ' || ') }}
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       - name: Merge Failed 
         uses: rjstone/discord-webhook-notify@v1
-        if: ${{ always() && contains(join(needs.*.result, ','), 'success') == false }}
+        if: failure() && steps.merge_prod.outcome != 'success'
         with:
-            severity: error
-            details: Test Succeeded!
-            description: ${{ join(github.event.commits.*.message, ' || ') }}
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          severity: error
+          details: Test Succeeded!
+          description: ${{ join(github.event.commits.*.message, ' || ') }}
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
