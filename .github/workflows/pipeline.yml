@@ -61,14 +61,10 @@ jobs:
           git pull
           git merge --no-ff master -m "Auto-merge master back to dev"
           git push
-  # job:
-  #   runs-on: ubuntu-latest
-    # if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    # needs: [merge_to_prod, simple_deployment_pipeline]
   notify_discord:
     runs-on: ubuntu-20.04
     needs: [merge_to_prod]
-      steps:
+    steps:
       - uses: actions/checkout@v3
       - name: Merge Success
         uses: rjstone/discord-webhook-notify@v1
